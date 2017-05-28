@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-from bson import json_util
+# -*- coding: utf-8 -*- from bson import json_util
 from utils import create_stream
 from handler import GeneralHandler
 from config import sqlite_settings
@@ -34,6 +32,5 @@ def main():
 
 
 if __name__ == '__main__':
-    import sys
     main()
 
