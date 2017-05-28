@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from bson import json_util
 from utils import create_stream
 from handler import GeneralHandler
 from config import sqlite_settings
@@ -11,6 +12,7 @@ def main():
     log_file,log_pos = sqlite.getPositionorCreate()
     print("from sqlite info: {},{}".format(log_file,log_file))
     stream = create_stream(log_file,log_pos)
+    stream = create_stream()
     for binlogevent in stream:
         print(binlogevent.event_type)
         log_file,log_pos = sqlite.getPositionorCreate()
@@ -32,5 +34,6 @@ def main():
 
 
 if __name__ == '__main__':
+    import sys
     main()
 

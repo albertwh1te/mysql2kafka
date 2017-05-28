@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import datetime
+from decimal import Decimal
 from pymysqlreplication.row_event import (
     DeleteRowsEvent,
     UpdateRowsEvent,
@@ -20,3 +23,17 @@ def create_stream(log_file=None,log_pos=None):
         log_pos=log_pos,
         resume_stream=True
     )
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, datetime.datetime):
+        serial = obj.isoformat()
+    # if isinstance(obj,datetime.datetime.date):
+        # serial = obj.strftime('%Y-%m-%d')
+    # if isinstance(obj,datetime.datetime.day):
+    #     serial = obj.strftime('%Y-%m-%d')
+    if isinstance(obj,Decimal):
+        serial = str(obj)
+    return serial

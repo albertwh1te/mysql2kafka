@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
+from bson import json_util
+from utils import json_serial
+
 import socket
 
 from pymysqlreplication.row_event import (
@@ -33,6 +36,7 @@ class CUDHandler(object):
 
     def __addtype(self):
         #TODO 1->insert into, 2->delete, 3->update 4->alter
+        # import ipdb; ipdb.set_trace()
 
         if isinstance(self.binlogevent, DeleteRowsEvent):
             self.event["metadata"]["event"] = "delete"
@@ -48,7 +52,7 @@ class CUDHandler(object):
     def tojson(self):
         self.event['rows'] = self.binlogevent.rows
         self.__addtype()
-        return json.dumps(self.event)
+        return json.dumps(self.event,default=json_serial)
 
 
 class RotateeventHandler(object):
@@ -84,7 +88,7 @@ class QueryeventHandler(object):
 
 
     def tojson(self):
-        return json.dumps(self.event)
+        return json.dumps(self.event,default=json_serial)
 
 
 class GeneralHandler(object):
@@ -98,15 +102,16 @@ class GeneralHandler(object):
             self.handler = CUDHandler(binlogevent)
 
     def toKafka(self):
-        kafka = Kafka(
-            kafka_settings.get("bootstrap_servers",None),
-            kafka_settings.get("zookeeper",None)
-        )
-        if self.handler.tojson():
-            results = kafka.send(
-                kafka_settings.get('topic'),
-                self.handler.tojson()
-            )
-            return results
+        if self.handler.event.get('sql',None) != 'BEGIN' and self.handler.event.get('sql',None) != 'COMMIT':
+          kafka = Kafka(
+              kafka_settings.get("bootstrap_servers",None),
+              kafka_settings.get("zookeeper",None)
+          )
+          if self.handler.tojson():
+              results = kafka.send(
+                  kafka_settings.get('topic'),
+                  self.handler.tojson()
+              )
+              return results
 
 

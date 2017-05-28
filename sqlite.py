@@ -11,16 +11,35 @@ class Sqlite(object):
         self.id_field = sqlite_config.get("id_field")
 
     def getPositionorCreate(self):
+        # import ipdb; ipdb.set_trace()
         conn = sqlite3.connect(self.config.get("sqlite_file"))
         c = conn.cursor()
+
+        # import ipdb; ipdb.set_trace()
+
         try:
-            sql =  "SELECT file,pos from {table_name}".format(
+            sql =  "SELECT file,pos FROM {table_name};".format(
+
                 table_name = self.table_name
             )
             c.execute(sql)
-            conn.commit()
-            return c.fetchone()
+            results = c.fetchone()
+            if results:
+                return results
+            else:
+                sql = "INSERT INTO {table_name} (id,file,pos) VALUES (1,1,1);".format(
+                        table_name = self.table_name,
+                        id_field = self.id_field,
+                    )
+                c.execute(sql)
+            return None,None
+
         except Exception as e:
+            sql = """
+                INSERT INTO {table_name} VALUES (1,1,1);
+                """.format(
+                    table_name = self.table_name,
+                    id_field = self.id_field)
             c.execute(
                 """
                 CREATE TABLE {table_name} ({id_field} INTEGER PRIMARY KEY,file TEXT, pos INTEGER);
@@ -29,8 +48,16 @@ class Sqlite(object):
                     id_field = self.id_field,
                 )
                 )
-            return "created"
+            c.execute(sql)
+            sql2 = "UPDATE {table_name} SET file = '{file_name}',pos = '{pos}'".format(
+                table_name = self.table_name,
+                pos=1,
+                file_name='22'
+                )
+            c.execute(sql2)
+            return "created",'ff'
         finally:
+            conn.commit()
             conn.close()
 
     def updatePosition(self,file_name,pos):
