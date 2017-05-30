@@ -18,3 +18,10 @@ kafka_settings = {
     "bootstrap_servers":"kfk0:11199",
     "topic":"test9"
 }
+
+log_settings = {
+    "level":"DEBUG",
+    # "level":"WARNING",
+    # "level":"INFO"
+    "file_positition":"log/mysql2kafka.log"
+}
